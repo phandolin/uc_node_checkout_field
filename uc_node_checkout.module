@@ -231,6 +231,37 @@ function uc_node_checkout_user($op, &$edit, &$user, $category = NULL) {
   }
 }
 
+/**
+ * Phil's code, update cart qty with # of beds field for node type care_home.
+ */
+
+
+
+		 function uc_node_checkout_uc_cart_alter(&$items) {
+			foreach ($items as $key => $value) {
+				if (isset($value->data['node_checkout_nid'])) {
+						$qtynid = node_load($value->data['node_checkout_nid']);
+						$value->qty = $qtynid->field__of_category_1_beds['und'][0]['value'];
+
+					}
+			 }
+		 }
+		function uc_node_checkout_uc_checkout_complete($order, $account) {
+		   foreach ($order->products as $product) {
+			   if (!empty ($product->data['node_checkout_nid'])) {
+					$node_id = $product->data['node_checkout_nid'];
+					$node = node_load($node_id);
+					$nodetype = $node->type;
+						if ($nodetype =='care_home') {
+							$node->status = 1; // publish the node
+							node_save($node);
+						}
+					}
+					// dpm ($node);
+				}
+		}
+
+
 
 /**
  * Implements hook_form_alter().
